@@ -29,7 +29,7 @@ normative:
   RFC7858:
   RFC8520:
   RFC1794:  # DNS round robin support
-  
+
 informative:
   RFC1034:
 
@@ -131,7 +131,7 @@ provides three advantages:
    be cached, and will remain the same for the entire advertised Time-To-Live
    reported in the DNS query return.  This also allows the MUD controller to
    avoid doing unnecessary queries.
- 
+
 3. if any addresses have been omitted in a round-robin DNS process, the cache
    will have the set of addresses that were returned.
 
@@ -149,7 +149,7 @@ The solution of using the same caching recursive resolver as the target
 device is very simple when the MUD controllers is located in a residential
 CPE device.  The device is usually also the policy enforcement point for the
 ACLs, and a caching resolver is typically located on the same device.  In
-addition the convenience, there is a shared fate advantage: as all 
+addition the convenience, there is a shared fate advantage: as all
 three components are running on the same device, if the device is rebooted,
 clearing the cache, then all three components will get restarted when the
 device is restarted.
