@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for use of DNS in IoT devices
 abbrev: mud-iot-dns
-docname: draft-richardson-opsawg-mud-iot-dns-considerations
+docname: draft-richardson-opsawg-mud-iot-dns-considerations-01
 
 # stand_alone: true
 
@@ -28,7 +28,8 @@ author:
 normative:
   RFC7858:
   RFC8520:
-
+  RFC1794:  # DNS round robin support
+  
 informative:
   RFC1034:
 
@@ -91,7 +92,75 @@ should MUD/firewall managers and IoT manufacturers choose not to cooperate.
 
 # Strategies to map names
 
-TBD
+The simplest strategy for a MUD controller to take is to do a DNS lookup on
+the name, and then use the resulting IP addresses to populate the ACLs.
+
+There are a number of failures possible.  The most important one is in the
+mapping of the names to IP addresses.  {{RFC1794}} describes how a common
+mechanism that returns DNS A (or reasonably AAAA) records in a permutted
+order.  As long as all possible A/AAAA records are returned then ACLs
+can be setup for all possibilities.
+
+There are a number of circumstances in which the list is not exhaustive.  The
+simplest is when the round robin does not return all addresses.  This is
+routinely done by geographical DNS load balancing system.  In such a system
+the address that is returns depends upon the network locality of the asking
+system.  There may also be further layers of round-robin indirection.
+
+Aside from the list of records being incomplete, the list may have changed
+between the time that the MUD controller did the lookup and the time that the
+IoT device does the lookup, and this change can result in a failure in the
+mapping.
+
+In order to compensate for this, the MUD controller SHOULD regularly do DNS
+lookups.  These lookups need to be rate limited in order to avoid load.
+It may be necessary to avoid recursive DNS servers in order to avoid
+receiving cached data.  Properly designed recursive servers should cache data
+for many minutes to days, while the underlying DNS data can change at a
+higher frequency, providing different answers to different queries.
+
+A MUD controller that is aware of which recursive DNS server that the IoT
+device will use can instead query that server on a periodic basis.  Doing so
+provides three advantages:
+
+1. any geographic load balancing will base the decision on the geolocation of
+   the recursive DNS server, and the recursive name server will provide the
+   same answer to the MUD controller as to the IoT device.
+
+2. the resulting name to IP address mapping in the recursive name server will
+   be cached, and will remain the same for the entire advertised Time-To-Live
+   reported in the DNS query return.  This also allows the MUD controller to
+   avoid doing unnecessary queries.
+ 
+3. if any addresses have been omitted in a round-robin DNS process, the cache
+   will have the set of addresses that were returned.
+
+The naive method of trying to map IP addresses to names will in the ACLs will
+not work: the reverse DNS map is frequently not populated, or if it is, it is
+populated with a name that is not the same name as in the MUD file ACL.  This
+is trivial to understand when virtual hosting for web servers is
+considered. Many names map to a single IP address, but multiple names are
+seldom populated into the reverse PTR records.
+
+Additionally, mapping IP addresses to names in real time, when making packet
+forwarding decisions is not practical from a performance point of view.
+
+The solution of using the same caching recursive resolver as the target
+device is very simple when the MUD controllers is located in a residential
+CPE device.  The device is usually also the policy enforcement point for the
+ACLs, and a caching resolver is typically located on the same device.  In
+addition the convenience, there is a shared fate advantage: as all 
+three components are running on the same device, if the device is rebooted,
+clearing the cache, then all three components will get restarted when the
+device is restarted.
+
+Where the solution is more complex is when the MUD controller is located
+elsewhere in an Enteprise, or remotely in a cloud such as when a Software
+Defines Network (SDN) is used to manage the ACLs.  The DNS servers for a
+particular device may not be known to the MUD controller, nor the MUD
+controller be even permitted to make recusive queries that server if it is
+known.   In this case, additional mechanisms are probably needed to get the
+right view of DNS.
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
 
