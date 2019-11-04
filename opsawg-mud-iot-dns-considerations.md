@@ -37,9 +37,21 @@ normative:
     title: "Akamai"
     target: "https://en.wikipedia.org/wiki/Akamai_Technologies"
     date: 2019
+  RFC8499:
+  I-D.ietf-dnsop-terminology-ter:
+  I-D.ietf-suit-architecture: SUITARCH
+  I-D.reddy-dprive-bootstrap-dns-server:
+  I-D.peterson-doh-dhcp:
+  RFC7858:
+  RFC8094:
+  RFC6146:
 
 informative:
-  RFC1034:
+  mudmaker:
+    title: "Mud Maker"
+    target: "https://mudmaker.org"
+    date: 2019
+  I-D.richardson-opsawg-securehomegateway-mud: securehomegateway-mud
 
 --- abstract
 
@@ -209,13 +221,13 @@ for devices that were forced to use that recursive resolver type.
 A second reason to avoid a DNS in the URL is when an inhouse content-distribution
 system is involved that involves on-demand instances being added (or removed)
 from a cloud computing architecture.  This model is typical of on-demand
-video systems including Netflix (see [LOOKING FOR NETFLIX REF],
-[WINDOWS UPDATE REF]), but this can occur in quite a number of other
+video systems including Netflix (see \[LOOKING FOR NETFLIX REF],
+\[WINDOWS UPDATE REF]), but this can occur in quite a number of other
 situations.   Third-party content-distribution networks (CDN) tend to use DNS names
 in order to isolate the content-owner from changes to the distribution
 network.
 
-[BEHAVE-BCP-REF] gives other good reasons why IP address literals are bad
+\[BEHAVE-BCP-REF] gives other good reasons why IP address literals are bad
 ideas; in particular they work very poorly when devices have IPv6
 capabilities, and are on IPv6-only networks with NAT64 (see {{RFC6146}}).
 
@@ -250,8 +262,8 @@ The MUD ACLs provide only for permitting end points and do not filter URLs
 
 # DNS privacy and outsourcing vs MUD controllers
 
-{{RFC 7858}} and {{RFC 8094}} provide for DNS over TLS and DTLS.
-{{I-D.dnsop-terminology-ter}} details the terms. But, even with traditional
+{{RFC7858}} and {{RFC8094}} provide for DNS over TLS and DTLS.
+{{I-D.ietf-dnsop-terminology-ter}} details the terms. But, even with traditional
 DNS over Port-53 (Do53), it is possible to oursource DNS queries to other
 places such as the QuadX systems ([I-D.dnsop-terminology-ter] section Y).
 
