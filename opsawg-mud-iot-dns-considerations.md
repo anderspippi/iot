@@ -33,11 +33,11 @@ normative:
     title: "Amazon S3"
     target: "https://en.wikipedia.org/wiki/Amazon_S3"
     date: 2019
-  Akamai: 
+  Akamai:
     title: "Akamai"
     target: "https://en.wikipedia.org/wiki/Akamai_Technologies"
     date: 2019
-    
+
 informative:
   RFC1034:
 
@@ -101,7 +101,7 @@ should MUD/firewall managers and IoT manufacturers choose not to cooperate.
 # Strategies to map names {#mapping}
 
 The simplest strategy for translating names is for a MUD controller to take
-is to do a DNS lookup on 
+is to do a DNS lookup on
 the name, and then use the resulting IP addresses to populate the physical ACLs.
 
 There are a number of failures possible.  The most important one is in the
@@ -172,12 +172,12 @@ known.   In this case, additional installation specific mechanisms are
 probably needed to get the right view of DNS.
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
-  
+
 This section describes a number of things with IoT manufacturers have been
 observed to do in the field, each of which presents difficulties for MUD
 enforcement points.
 
-## Use of IP address literals in-protocol
+## Use of IP address literals in-protocol {#inprotocol}
 
 A common pattern for a number of devices is to look for firmware updates in a
 two step process.  An initial query is made (often over HTTPS, sometimes with
@@ -185,7 +185,7 @@ a POST, but the method is immaterial) to an authoritatve server.
 The current firmware model of the device is sometimes provided and then the
 authoritative server provides a determination if a new version is required,
 and if so, what version.  In simpler cases, an HTTPS end point is queried
-which provides the name and URL of the most recent firmware.  
+which provides the name and URL of the most recent firmware.
 
 The more complex case supports situations in which the device needs to be
 running the latest patch release before it can apply the next major
@@ -202,7 +202,7 @@ provided.  An authoritative server might be tempted to provided an IP address
 literal inside the protocol: there are two arguments for doing this.
 
 One is that it eliminates problems to firmware updates that might be caused
-by lack of DNS, or incompatibilities with DNS.  For instance bug that causes 
+by lack of DNS, or incompatibilities with DNS.  For instance bug that causes
 interoperability issues with some recursive servers would become unpatchable
 for devices that were forced to use that recursive resolver type.
 
@@ -240,37 +240,38 @@ This applies to the firmware update situation as well.
 
 ## Use of a too inclusive DNS name
 
-Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).  
+Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).
 This seems to be ideal from a MUD point of view: a completely predictable
 URL.  The problem is that a compromised device could then connect to any S3
 bucket, potentially attacking other buckets.
 
 The MUD ACLs provide only for permitting end points and do not filter URLs
-(nor could filtering be enforced within HTTPS). 
+(nor could filtering be enforced within HTTPS).
 
 # DNS privacy and outsourcing vs MUD controllers
 
-{{RFC 7858}} and {{RFC 8094}} provide for DNS over TLS and DTLS.  Other
-recent proposals including doing DNS over HTTP.  But, even with traditional
+{{RFC 7858}} and {{RFC 8094}} provide for DNS over TLS and DTLS.
+{{I-D.dnsop-terminology-ter}} details the terms. But, even with traditional
 DNS over Port-53 (Do53), it is possible to oursource DNS queries to other
-places such as the QuadX systems ([QUADX reference]).
+places such as the QuadX systems ([I-D.dnsop-terminology-ter] section Y).
 
 There are significant privacy issues with having IoT devices sending their
-DNS queries to an outside entity.  Doing it over a secure transport (DoT/DoH)
-is clearly better than doing so on port 53.  The providers of the secure
-resolver service will still see the IoT device queries.
+DNS queries to an outside entity.
+Doing it over a secure transport (DoT/DoH) is clearly better than doing so on
+port 53.
+The providers of the secure resolver service will still see the IoT device queries.
 
 A described above in {{mapping}} the MUD controller needs to have access to
-the same resolver(s) as the IoT device.  Use of the [QUADX] resolvers at
+the same resolver(s) as the IoT device.  Use of the QuadX resolvers at
 first seems to present less of a problem than use of some other less well
-known resolver.  While any system may use [QUADX], in most cases those
-services are massively replicated via anycast.  A MUD controller still needs
-to be able to get talk to the same anycast instance as the IoT device to be
-assured that it gets the same response.
+known resolver.  While any system may use QuadX, in most cases those
+services are massively replicated via anycast: there is no guarantee that a
+MUD controller will speak to the same instance, or get the same geographic
+anycast result.
 
 # Recommendations to IoT device manufacturer on MUD and DNS usage
 
-Inclusion of a MUD file with IoT devices is operationally quite simple.  
+Inclusion of a MUD file with IoT devices is operationally quite simple.
 It requires only a few small changes to the DHCP client code to express the
 MUD URL.  It can even be done without code changes via the use of a QR code
 affixed to the packaging (see {{-securehomegateway-mud}}).
@@ -282,16 +283,128 @@ contents of what is in the MUD file.  An IoT manufacturer must now spend some
 time reviewing what the network communications that their device does.
 
 This document has discussed a number of challenges that occur relating to how
+DNS requests are made and resolved, and it is the goal of this section to make
+recommendations on how to modify IoT systems to work well with MUD.
 
+## Consistently use DNS
+
+The first recommendation is to avoid using IP address literals in any
+protocol.  Names should always be used.
+
+## Use primary DNS names controlled by the manufacturer
+
+The second recommendation is to allocate and use names within zones
+controlled by the manufacturer.
+These names can be populated with an alias (see {{RFC8499}} section 2) that
+points to the production system.
+Ideally, a different name is used for each logical function, allowing for
+different rules in the MUD file to be enabled and disabled.
+
+While it used to be costly to have a large number of aliases in a web server
+certificate, this is no longer the case.
+Wildcard certificates are also commonly available.
+
+## Use Content-Distribution Network with stable names
+
+When aliases point to a Content-Distribution Network (CDN), prefer to use
+stable names that point to appropriately load balanced targets.
+CDNs that employ very low time-to-live (TTL) values for DNS make it harder
+for the MUD controller to get the same answer as the IoT Device.
+A CDN that always returns the same set of A and AAAA records, but permutes
+them to provide the best one first provides a more reliable answer.
+
+## Prefer DNS servers learnt from DHCP/Route Advertisements
+
+IoT Devices should prefer doing DNS to the network provided DNS
+servers.  Whether this is restricted to Classic DNS (Do53) or also includes
+using DoT/DoH is a local decision, but a locally provided DoT server SHOULD
+be used, as recommended by {{I-D.reddy-dprive-bootstrap-dns-server}} and
+{{I-D.peterson-doh-dhcp}}.
+
+Use of public QuadX resolver instead of the provided DNS resolver, whether
+Do53, DoT or DoH is discouraged.
+Should the network provide such a resolver for use, then there is no reason
+not to use it, as the network operator has clearly thought about this.
+
+Some manufacturers would like to have a fallback to using a public resolver
+to mitigate against local misconfiguration.
+There are a number of reasons to avoid this, or at least do this very
+carefully.
+The recommendation here is to do this only when the provided resolvers
+provide no answers to any queries at all, and do so repeatedly.
+The use of the operator provided resolvers SHOULD be retried on a periodic
+basis, and once they answer, there should be no further attempts to contact
+public resolvers.
+
+Finally, the list of public resolvers that might be contacted MUST be listed in
+the MUD file as destinations that are to be permitted.
+This should include the port numbers (53, 853 for DoT, 443 for DoH) that will
+be used as well.
 
 # Privacy Considerations
 
-TBD
+The use of non-local DNS servers exposes the list of names resolved to a
+third parties, including passive eavesdroppers.
+
+The use of DoT and DoH eliminates the minimizes threat from passive
+eavesdropped, but still exposes the list to the operator of the DoT or DoH
+server.
+
+The use of unencrypted (Do53) requests to a local DNS server exposes the list
+to any internal passive eavesdroppers, and for some situations that may be
+significant, particularly if unencrypted WiFi is used.
+Use of DoT to a local DNS recursive resolver is a preferred choice, assuming
+that the trust anchor for the local DNS server can be obtained, such as via
+{{I-D.reddy-dprive-bootstrap-dns-server}}.
+
+IoT devices that reach out to the manufacturer at regular intervals to check
+for firmware updates are informing passive eavesdroppers of the existence of
+a specific manufacturer's device being present at the origin location.
+While possession of a Large Appliance at a residence may be uninteresting,
+possession of intimate personal devices ("sex toys") may be a cause for
+embarassment.
+
+IoT device manufacturers are encouraged to anonymizing ways to do update
+queries.
+For instance, contracting out the update notification service to a third
+party that deals with a large variety of devices would provide a level of
+defense against passive eavesdropping.
+Other update mechanisms should be investigated, including use of DNSSEC
+signed TXT records with current version information.
+This would permit DoT or DoH to provide the update notification.
+This is particularly powerful if a local recursive DoT server is used, which
+then communicates using DoT over the Internet.
+
+The more complex case of section {{inprotocol} postulates that the version
+number needs to be provided to an intelligent agent that can decided the
+correct route to do upgrades.
+The current {{-SUITARCH}} specification provides a wide variety of ways to
+accomplish the same thing without having to divulge the current version
+number.
+
+The use of a publically specified firmware update protocol would also
+enhance privacy of IoT devices.
+In such a system the IoT device would never contact the manufacturer for
+version information or for firmware itself.
+Instead, details of how to query and where to get the firmware would be
+provided as a MUD extension, and a Enterprise-wide mechanism would retrieve
+firmware, and then distribute it internally.
+Aside from the bandwidth savings of downloading the firmware only once, this
+also makes the number of devices active confidential,  and provides some
+evidence about which devices have been upgraded and which ones might still be
+vulnerable.
+(The unpatched devices might be lurking, powered off, lost in a closet)
 
 # Security Considerations
 
-TBD
+This document deals with conflicting Security requirements: devices which
+an operator wants to manage using {{RFC8520}} vs requirements for the devices
+to get access to network resources that may be critical to their continued
+safe operation.
 
+This document takes the view that the two requirements do not need to be in
+conflict, but resolving the conflict requires some advance planning by all
+parties.
 
 --- back
 
