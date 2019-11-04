@@ -29,7 +29,15 @@ normative:
   RFC7858:
   RFC8520:
   RFC1794:  # DNS round robin support
-
+  AmazonS3:
+    title: "Amazon S3"
+    target: "https://en.wikipedia.org/wiki/Amazon_S3"
+    date: 2019
+  Akamai: 
+    title: "Akamai"
+    target: "https://en.wikipedia.org/wiki/Akamai_Technologies"
+    date: 2019
+    
 informative:
   RFC1034:
 
@@ -90,10 +98,11 @@ residence or enterprise is dealt with.
 The Security Considerations section covers some of the negative outcomes
 should MUD/firewall managers and IoT manufacturers choose not to cooperate.
 
-# Strategies to map names
+# Strategies to map names {#mapping}
 
-The simplest strategy for a MUD controller to take is to do a DNS lookup on
-the name, and then use the resulting IP addresses to populate the ACLs.
+The simplest strategy for translating names is for a MUD controller to take
+is to do a DNS lookup on 
+the name, and then use the resulting IP addresses to populate the physical ACLs.
 
 There are a number of failures possible.  The most important one is in the
 mapping of the names to IP addresses.  {{RFC1794}} describes how a common
@@ -163,16 +172,117 @@ known.   In this case, additional installation specific mechanisms are
 probably needed to get the right view of DNS.
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
+  
+This section describes a number of things with IoT manufacturers have been
+observed to do in the field, each of which presents difficulties for MUD
+enforcement points.
 
-In order to
+## Use of IP address literals in-protocol
+
+A common pattern for a number of devices is to look for firmware updates in a
+two step process.  An initial query is made (often over HTTPS, sometimes with
+a POST, but the method is immaterial) to an authoritatve server.
+The current firmware model of the device is sometimes provided and then the
+authoritative server provides a determination if a new version is required,
+and if so, what version.  In simpler cases, an HTTPS end point is queried
+which provides the name and URL of the most recent firmware.  
+
+The more complex case supports situations in which the device needs to be
+running the latest patch release before it can apply the next major
+release. For instance, a device running 1.4 must upgrade to at least version
+1.9 before it is able to download version 2.0 of the firmware.
+
+The authoritative upgrade server then responds with a URL of a firmware blob that the
+device should download and install.  Best practice is that firmware is either
+signed internally ({{-SUITARCH}}) so that it can be verified, or a hash of
+the blob is provided.
+
+The challenge for a MUD controller is in the details of the URL that is
+provided.  An authoritative server might be tempted to provided an IP address
+literal inside the protocol: there are two arguments for doing this.
+
+One is that it eliminates problems to firmware updates that might be caused
+by lack of DNS, or incompatibilities with DNS.  For instance bug that causes 
+interoperability issues with some recursive servers would become unpatchable
+for devices that were forced to use that recursive resolver type.
+
+A second reason to avoid a DNS in the URL is when an inhouse content-distribution
+system is involved that involves on-demand instances being added (or removed)
+from a cloud computing architecture.  This model is typical of on-demand
+video systems including Netflix (see [LOOKING FOR NETFLIX REF],
+[WINDOWS UPDATE REF]), but this can occur in quite a number of other
+situations.   Third-party content-distribution networks (CDN) tend to use DNS names
+in order to isolate the content-owner from changes to the distribution
+network.
+
+[BEHAVE-BCP-REF] gives other good reasons why IP address literals are bad
+ideas; in particular they work very poorly when devices have IPv6
+capabilities, and are on IPv6-only networks with NAT64 (see {{RFC6146}}).
+
+## Use of non-deterministic DNS names in-protocol
+
+A second pattern is for a control protocol to connect to a known HTTP end
+point.  This is easily described in MUD.  Within that control protocol
+references are made to additional content at other URLs.  The values of those
+URLs do not fit any easily described pattern and may point at arbitrary
+names.
+
+Those names are often within some third-party Content-Distribution-Network
+(CDN) system, or may be arbitrary names in a cloud-provider storage system
+such as Amazon S3 (such {{AmazonS3}}, or {{Akamai}}).
+
+**INSERT** examples of non-deterministic CDN content.
+
+Since it is not possible to predict a name for where the content will be, it
+is not possible to include that into the MUD file.
+
+This applies to the firmware update situation as well.
+
+## Use of a too inclusive DNS name
+
+Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).  
+This seems to be ideal from a MUD point of view: a completely predictable
+URL.  The problem is that a compromised device could then connect to any S3
+bucket, potentially attacking other buckets.
+
+The MUD ACLs provide only for permitting end points and do not filter URLs
+(nor could filtering be enforced within HTTPS). 
 
 # DNS privacy and outsourcing vs MUD controllers
 
-TBD
+{{RFC 7858}} and {{RFC 8094}} provide for DNS over TLS and DTLS.  Other
+recent proposals including doing DNS over HTTP.  But, even with traditional
+DNS over Port-53 (Do53), it is possible to oursource DNS queries to other
+places such as the QuadX systems ([QUADX reference]).
 
-# Recommendations on MUD and DNS co-existence
+There are significant privacy issues with having IoT devices sending their
+DNS queries to an outside entity.  Doing it over a secure transport (DoT/DoH)
+is clearly better than doing so on port 53.  The providers of the secure
+resolver service will still see the IoT device queries.
 
-TBD
+A described above in {{mapping}} the MUD controller needs to have access to
+the same resolver(s) as the IoT device.  Use of the [QUADX] resolvers at
+first seems to present less of a problem than use of some other less well
+known resolver.  While any system may use [QUADX], in most cases those
+services are massively replicated via anycast.  A MUD controller still needs
+to be able to get talk to the same anycast instance as the IoT device to be
+assured that it gets the same response.
+
+# Recommendations to IoT device manufacturer on MUD and DNS usage
+
+Inclusion of a MUD file with IoT devices is operationally quite simple.  
+It requires only a few small changes to the DHCP client code to express the
+MUD URL.  It can even be done without code changes via the use of a QR code
+affixed to the packaging (see {{-securehomegateway-mud}}).
+
+The difficult part is determining what to put into the MUD file itself.
+There are currently tools that help with the definition and analysis of MUD
+files, see {{mudmaker}}.  The remaining difficulty is now the semantic
+contents of what is in the MUD file.  An IoT manufacturer must now spend some
+time reviewing what the network communications that their device does.
+
+This document has discussed a number of challenges that occur relating to how
+
 
 # Privacy Considerations
 
