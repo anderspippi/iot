@@ -159,12 +159,12 @@ elsewhere in an Enteprise, or remotely in a cloud such as when a Software
 Defines Network (SDN) is used to manage the ACLs.  The DNS servers for a
 particular device may not be known to the MUD controller, nor the MUD
 controller be even permitted to make recusive queries that server if it is
-known.   In this case, additional mechanisms are probably needed to get the
-right view of DNS.
+known.   In this case, additional installation specific mechanisms are
+probably needed to get the right view of DNS.
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
 
-TBD
+In order to
 
 # DNS privacy and outsourcing vs MUD controllers
 
