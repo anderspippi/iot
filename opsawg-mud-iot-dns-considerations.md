@@ -65,6 +65,8 @@ go wrong, and then provides some advice on how a device manufacturer can best
 make deal with these issues.  The recommendations have an impact upon device
 and network protocol design.
 
+{RFC-EDITOR, please remove. Markdown and issue tracker for this document is at https://github.com/mcr/iot-mud-dns-considerations.git }
+
 --- middle
 
 # Introduction
