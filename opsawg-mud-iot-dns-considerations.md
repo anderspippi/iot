@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for use of DNS in IoT devices
 abbrev: mud-iot-dns
-docname: draft-richardson-opsawg-mud-iot-dns-considerations-01
+docname: draft-richardson-opsawg-mud-iot-dns-considerations-02
 
 # stand_alone: true
 
@@ -265,9 +265,10 @@ The MUD ACLs provide only for permitting end points and do not filter URLs
 # DNS privacy and outsourcing vs MUD controllers
 
 {{RFC7858}} and {{RFC8094}} provide for DNS over TLS and DTLS.
-{{I-D.ietf-dnsop-terminology-ter}} details the terms. But, even with traditional
-DNS over Port-53 (Do53), it is possible to oursource DNS queries to other
-places such as the QuadX systems ([I-D.dnsop-terminology-ter] section Y).
+{{I-D.ietf-dnsop-terminology-ter}} details the terms.
+But, even with traditional DNS over Port-53 (Do53), it is possible to
+oursource DNS  queries to other public services, such as those operated by
+Google, CloudFlare, Verisign, etc.
 
 There are significant privacy issues with having IoT devices sending their
 DNS queries to an outside entity.
