@@ -291,7 +291,7 @@ Other update mechanisms should be investigated, including use of DNSSEC signed T
 This would permit DoT or DoH to provide the update notification.
 This is particularly powerful if a local recursive DoT server is used, which then communicates using DoT over the Internet.
 
-The more complex case of section {{inprotocol} postulates that the version number needs to be provided to an intelligent agent that can decided the correct route to do upgrades.
+The more complex case of section {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decided the correct route to do upgrades.
 The current {{-SUITARCH}} specification provides a wide variety of ways to accomplish the same thing without having to divulge the current version number.
 
 The use of a publically specified firmware update protocol would also enhance privacy of IoT devices.
