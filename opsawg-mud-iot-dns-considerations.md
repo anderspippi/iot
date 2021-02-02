@@ -298,9 +298,9 @@ The use of unencrypted (Do53) requests to a local DNS server exposes the list to
 Use of DoT to a local DNS recursive resolver is a preferred choice, assuming that the trust anchor for the local DNS server can be obtained, such as via {{I-D.reddy-dprive-bootstrap-dns-server}}.
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
-While possession of a Large (Kitchen) Appliance at a residence may be uninteresting to most, possession of intimate personal devices (e.g., "sex toys") may be a cause for embarassment.
+While possession of a Large (Kitchen) Appliance at a residence may be uninteresting to most, possession of intimate personal devices (e.g., "sex toys") may be a cause for embarrassment.
 
-IoT device manufacturers are encouraged to anonymizing ways to do update queries.
+IoT device manufacturers are encouraged to find ways to anonymize their update queries.
 For instance, contracting out the update notification service to a third party that deals with a large variety of devices would provide a level of defense against passive eavesdropping.
 Other update mechanisms should be investigated, including use of DNSSEC signed TXT records with current version information.
 This would permit DoT or DoH to convey the update notification in a private fashion.
