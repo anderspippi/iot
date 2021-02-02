@@ -47,19 +47,18 @@ informative:
     title: "Mud Maker"
     target: "https://mudmaker.org"
     date: 2019
-  I-D.richardson-opsawg-securehomegateway-mud: securehomegateway-mud
+  I-D.richardson-mud-qrcode:
 
 --- abstract
 
 This document details concerns about how Internet of Things devices use IP
-addresses and DNS names.  The issue becomes acute as network
-operators begin deploying RFC8520 Manufacturer Usage Description (MUD)
-definitions to control device access.
+addresses and DNS names.
+The issue becomes acute as network operators begin deploying RFC8520 Manufacturer Usage Description (MUD) definitions to control device access.
 
 This document explains the problem through a series of examples of what can
 go wrong, and then provides some advice on how a device manufacturer can best
-make deal with these issues.  The recommendations have an impact upon device
-and network protocol design.
+make deal with these issues.
+The recommendations have an impact upon device and network protocol design.
 
 {RFC-EDITOR, please remove. Markdown and issue tracker for this document is at https://github.com/mcr/iot-mud-dns-considerations.git }
 
@@ -77,7 +76,8 @@ The firewall has only access to the layer-3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
-In theory, on TLS 1.2 connections the MUD policy enforcement point might observe the Server Name  Identifier (SNI), in practice it involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic.  And to what end? TLS 1.3 provides options to encrypt it (ESNI).
+In theory, on TLS 1.2 connections the MUD policy enforcement point might observe the Server Name  Identifier (SNI), in practice it involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic.  And to what end? TLS 1.3 provides options to encrypt the ESNI.
+XXX - rewrite this part to explain better.
 
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and layer-3 IP addresses.
 The first section of this document details a few strategies that are used.
@@ -102,9 +102,15 @@ It uses the above language where it needs to make a normative requirement on imp
 
 # Strategies to map names {#mapping}
 
+XXX - motivate why this is here?
+BCP - should this also be advice?
+
 The most naive method is to try to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings.
-This fails for a number of reasons: 1) it can not be done fast enough, 2) it reveals usage patterns of the devices, 3) the mapping are often incomplete, 4) even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
+This fails for a number of reasons: 1) it can not be done fast enough, 2) it reveals usage patterns of the devices, 3) the mapping are often incomplete,
+4) even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 This is not a successful strategy, and it is not used.
+XXX -- explain in detail how this can fail.
+YYY --- explain N:1 vs 1:1 for virtual hosting.
 
 The simplest successful strategy for translating names is for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
 
@@ -154,22 +160,27 @@ In this case, additional installation specific mechanisms are probably needed to
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
 
+XXX -- Anti-Pattern is unclear
+
 This section describes a number of things with IoT manufacturers have been observed to do in the field, each of which presents difficulties for MUD enforcement points.
 
 ## Use of IP address literals in-protocol {#inprotocol}
 
 A common pattern for a number of devices is to look for firmware updates in a two step process.
 An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to an authoritatve server.
+(What is this)
 The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required, and if so, what version.
 In simpler cases, an HTTPS end point is queried which provides the name and URL of the most recent firmware.
 
 The more complex case supports situations in which the device needs to be running the latest patch release before it can apply the next major release.
 For instance, a device running 1.4 must upgrade to at least version 1.9 before it is able to download version 2.0 of the firmware.
+(XXX:consider removing this, non-essential)
 
 The authoritative upgrade server then responds with a URL of a firmware blob that the device should download and install.
 Best practice is that firmware is either signed internally ({{-SUITARCH}}) so that it can be verified, or a hash of the blob is provided.
+XXX -- explain problem with IP address literals.
 
-The challenge for a MUD controller is in the details of the URL that is provided.
+The challenge for a MUD controller is in the details of the URL that is provided is not visible to the MUD controller.
 An authoritative server might be tempted to provided an IP address literal inside the protocol: there are two arguments for doing this.
 
 One is that it eliminates problems to firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
@@ -206,13 +217,15 @@ Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).
 This seems to be ideal from a MUD point of view: a completely predictable URL.
 The problem is that a compromised device could then connect to any S3 bucket, potentially attacking other buckets.
 
-The MUD ACLs provide only for permitting end points and do not filter URLs (nor could filtering be enforced within HTTPS).
+Provide an EXAMPLE, https://s3.awazonaws.com/petrocks/scenary/, XXX
 
-# DNS privacy and outsourcing vs MUD controllers
+The MUD ACLs provide only for permitting end points (hostnames and ports), but do not filter URLs (nor could filtering be enforced within HTTPS).
 
-{{RFC7858}} and {{RFC8094}} provide for DNS over TLS and DTLS.
+# DNS privacy and outsourcing versus MUD controllers
+
+{{RFC7858}} and {{RFC8094}} provide for DNS over TLS (DoT) and DNS over HTTPS (DoH).
 {{I-D.ietf-dnsop-terminology-ter}} details the terms.
-But, even with traditional DNS over Port-53 (Do53), it is possible to oursource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
+But, even with traditional DNS over Port-53 (Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
 
 There are significant privacy issues with having IoT devices sending their DNS queries to an outside entity.
 Doing it over a secure transport (DoT/DoH) is clearly better than doing so on
@@ -220,15 +233,17 @@ port 53.
 The providers of the secure resolver service will, however, still see the IoT device queries.
 
 A described above in {{mapping}} the MUD controller needs to have access to the same resolver(s) as the IoT device.
-Use of the QuadX resolvers at first seems to present less of a problem than use of some other less well known resolver.
+Use of the QuadX resolvers (such as Google's 8.8.8.8) at first seems to present less of a problem than use of some other less well known resolver.
 While any system may use QuadX, in most cases those services are massively replicated via anycast: there is no guarantee that a MUD controller will speak to the same instance, or get the same geographic anycast result.
+
+XXX - THIS NEEDS WAY MORE EXPLANATION.
 
 # Recommendations to IoT device manufacturer on MUD and DNS usage
 
 Inclusion of a MUD file with IoT devices is operationally quite simple.
 It requires only a few small changes to the DHCP client code to express the
 MUD URL.
-It can even be done without code changes via the use of a QR code affixed to the packaging (see {{-securehomegateway-mud}}).
+It can even be done without code changes via the use of a QR code affixed to the packaging (see {{I-D.richardson-mud-qrcode}}.
 
 The difficult part is determining what to put into the MUD file itself.
 There are currently tools that help with the definition and analysis of MUD files, see {{mudmaker}}.
@@ -288,7 +303,7 @@ While possession of a Large (Kitchen) Appliance at a residence may be uninterest
 IoT device manufacturers are encouraged to anonymizing ways to do update queries.
 For instance, contracting out the update notification service to a third party that deals with a large variety of devices would provide a level of defense against passive eavesdropping.
 Other update mechanisms should be investigated, including use of DNSSEC signed TXT records with current version information.
-This would permit DoT or DoH to provide the update notification.
+This would permit DoT or DoH to convey the update notification in a private fashion.
 This is particularly powerful if a local recursive DoT server is used, which then communicates using DoT over the Internet.
 
 The more complex case of section {{inprotocol}} postulates that the version number needs to be provided to an intelligent agent that can decided the correct route to do upgrades.
@@ -302,7 +317,11 @@ Aside from the bandwidth savings of downloading the firmware only once, this als
 
 # Security Considerations
 
-This document deals with conflicting Security requirements: devices which an operator wants to manage using {{RFC8520}} vs requirements for the devices to get access to network resources that  may be critical to their continued safe operation.
+This document deals with conflicting Security requirements:
+
+1. devices which an operator wants to manage using {{RFC8520}}
+
+2. requirements for the devices to get access to network resources that  may be critical to their continued safe operation.
 
 This document takes the view that the two requirements do not need to be in conflict, but resolving the conflict requires some advance planning by all parties.
 
