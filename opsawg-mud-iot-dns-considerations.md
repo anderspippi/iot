@@ -102,14 +102,20 @@ It uses the above language where it needs to make a normative requirement on imp
 
 # Strategies to map names {#mapping}
 
-XXX - motivate why this is here?
-BCP - should this also be advice?
-
 The most naive method is to try to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings.
-This fails for a number of reasons: 1) it can not be done fast enough, 2) it reveals usage patterns of the devices, 3) the mapping are often incomplete,
-4) even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
-This is not a successful strategy, and it is not used.
-XXX -- explain in detail how this can fail.
+This fails for a number of reasons:
+
+1. it can not be done fast enough,
+
+2. it reveals usage patterns of the devices,
+
+3. the mapping are often incomplete,
+
+4. even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
+
+This is not a successful strategy, and do not use it.
+
+XXX --- explain in detail how this can fail.
 YYY --- explain N:1 vs 1:1 for virtual hosting.
 
 The simplest successful strategy for translating names is for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
