@@ -9,6 +9,8 @@ wg: OPSAWG Working Group
 kw: Internet-Draft
 cat: bcp
 
+stand-alone: true
+
 pi:    # can use array (if all yes) or hash here
   toc: yes
   sortrefs:   # defaults to yes
@@ -284,7 +286,7 @@ IoT Devices should prefer doing DNS to the network provided DNS servers.
 Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{I-D.reddy-dprive-bootstrap-dns-server}} and {{I-D.peterson-doh-dhcp}}.
 
 The ADD WG is currently only focusing on insecure discovery mechanisms
-like DHCP/RA {{?I-D.btw-add-home}} and DNS based discovery mechanisms ({{I-D.pauly-add-deer}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{I-D.reddy-add-enterprise}} section-4. 
+like DHCP/RA {{?I-D.btw-add-home}} and DNS based discovery mechanisms ({?{I-D.pauly-add-deer}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{?I-D.reddy-add-enterprise}} section-4. 
 
 Use of public QuadX resolver instead of the provided DNS resolver, whether Do53, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
