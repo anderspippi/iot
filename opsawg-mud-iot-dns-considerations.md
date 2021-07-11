@@ -55,6 +55,10 @@ informative:
     target: "https://mudmaker.org"
     date: 2019
   I-D.richardson-mud-qrcode:
+  antipattern:
+    target: "https://www.agilealliance.org/glossary/antipattern"
+    title: "AntiPattern"
+    date: 2021-07-12
 
 --- abstract
 
@@ -173,7 +177,8 @@ In this case, additional installation specific mechanisms are probably needed to
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
 
-XXX -- Anti-Pattern is unclear
+In many design fields, there are good patterns that should be emulated, and often there are patterns that should not be emulated.
+The latter are called anti-patterns, as per {{antipatterns}}.
 
 This section describes a number of things with IoT manufacturers have been observed to do in the field, each of which presents difficulties for MUD enforcement points.
 
