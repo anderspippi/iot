@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for use of DNS in IoT devices
 abbrev: mud-iot-dns
-docname: draft-ietf-opsawg-mud-iot-dns-considerations-01
+docname: draft-ietf-opsawg-mud-iot-dns-considerations-02
 
 ipr: trust200902
 area: Operations
@@ -169,7 +169,7 @@ In addition the convenience, there is a shared fate advantage: as all three comp
 
 Where the solution is more complex is when the MUD controller is located elsewhere in an Enteprise, or remotely in a cloud such as when a Software Defines Network (SDN) is used to manage the ACLs.
 The DNS servers for a particular device may not be known to the MUD controller, nor the MUD controller be even permitted to make recusive queries that server if it is known.
-In this case, additional installation specific mechanisms are probably needed to get the right view of DNS. 
+In this case, additional installation specific mechanisms are probably needed to get the right view of DNS.
 
 # DNS and IP Anti-Patterns for IoT device Manufacturers
 
@@ -291,7 +291,7 @@ IoT Devices should prefer doing DNS to the network provided DNS servers.
 Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{I-D.reddy-dprive-bootstrap-dns-server}} and {{I-D.peterson-doh-dhcp}}.
 
 The ADD WG is currently only focusing on insecure discovery mechanisms
-like DHCP/RA {{?I-D.btw-add-home}} and DNS based discovery mechanisms ({?{I-D.pauly-add-deer}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{?I-D.reddy-add-enterprise}} section-4. 
+like DHCP/RA {{?I-D.btw-add-home}} and DNS based discovery mechanisms ({?{I-D.pauly-add-deer}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{?I-D.reddy-add-enterprise}} section-4.
 
 Use of public QuadX resolver instead of the provided DNS resolver, whether Do53, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
@@ -316,7 +316,7 @@ Use of Encrypted DNS connection to a local DNS recursive resolver is a preferred
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
 
-Identifying the IoT device type empowers the attacker to launch targeted attacks 
+Identifying the IoT device type empowers the attacker to launch targeted attacks
 to the IoT device (e.g., Attacker can advantage of the device vulnerability).
 
 While possession of a Large (Kitchen) Appliance at a residence may be uninteresting to most, possession of intimate personal devices (e.g., "sex toys") may be a cause for embarrassment.
