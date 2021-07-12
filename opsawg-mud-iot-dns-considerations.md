@@ -60,6 +60,11 @@ informative:
     title: "AntiPattern"
     date: 2021-07-12
 
+  awss3virtualhosting:
+    title: "Down to the Wire: AWS Delays 'Path-Style' S3 Deprecation at Last Minute"
+    target: "https://techmonitor.ai/techonology/cloud/aws-s3-path-deprecation"
+    date: 2021-07-12
+
 --- abstract
 
 This document details concerns about how Internet of Things devices use IP
@@ -87,8 +92,12 @@ The firewall has only access to the layer-3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
-In theory, on TLS 1.2 connections the MUD policy enforcement point might observe the Server Name  Identifier (SNI), in practice it involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic.  And to what end? TLS 1.3 provides options to encrypt the ESNI.
-XXX - rewrite this part to explain better.
+It has been suggested that one answer to this problem is to provide a forced intermediate for the TLS connections.
+This could in theory be done for TLS 1.2 connections.
+The MUD policy enforcement point could observe the Server Name  Identifier (SNI) {{?RFC6066}}.
+Some Enterprises do this already.
+But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort.
+But, TLS 1.3 provides options to encrypt the SNI as the ESNI, which renders the practice useless in the end.
 
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and layer-3 IP addresses.
 The first section of this document details a few strategies that are used.
@@ -127,7 +136,8 @@ This fails for a number of reasons:
 This is not a successful strategy, and do not use it.
 
 XXX --- explain in detail how this can fail.
-YYY --- explain N:1 vs 1:1 for virtual hosting.
+
+XXX --- explain N:1 vs 1:1 for virtual hosting.
 
 The simplest successful strategy for translating names is for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
 
@@ -229,8 +239,6 @@ The values of those URLs do not fit any easily described pattern and may point a
 
 Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system such as Amazon S3 (such {{AmazonS3}}, or {{Akamai}}).
 
-**INSERT** examples of non-deterministic CDN content.
-
 Since it is not possible to predict a name for where the content will be, it is not possible to include that into the MUD file.
 
 This applies to the firmware update situation as well.
@@ -241,7 +249,7 @@ Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).
 This seems to be ideal from a MUD point of view: a completely predictable URL.
 The problem is that a compromised device could then connect to any S3 bucket, potentially attacking other buckets.
 
-Provide an EXAMPLE, https://s3.awazonaws.com/petrocks/scenary/, XXX
+Amazon has recognized the problems associated with this practice, and aims to change it to a virtual hosting model, as per {{awss3virtualhosting}}.
 
 The MUD ACLs provide only for permitting end points (hostnames and ports), but do not filter URLs (nor could filtering be enforced within HTTPS).
 
@@ -296,7 +304,13 @@ When aliases point to a Content-Distribution Network (CDN), prefer to use stable
 CDNs that employ very low time-to-live (TTL) values for DNS make it harder for the MUD controller to get the same answer as the IoT Device.
 A CDN that always returns the same set of A and AAAA records, but permutes them to provide the best one first provides a more reliable answer.
 
+## Do not use geofenced names
+
+Due the problems with different answers from different DNS servers, described above, a strong recommendation is to avoid using such things.
+
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
+
+XXX - it has been suggested that this will not help, thus previous recommendation.
 
 IoT Devices should prefer doing DNS to the network provided DNS servers.
 Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{I-D.reddy-dprive-bootstrap-dns-server}} and {{I-D.peterson-doh-dhcp}}.
