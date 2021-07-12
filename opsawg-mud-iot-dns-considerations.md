@@ -190,28 +190,34 @@ An initial query is made (often over HTTPS, sometimes with a POST, but the metho
 The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required, and if so, what version.
 In simpler cases, an HTTPS end point is queried which provides the name and URL of the most recent firmware.
 
-The more complex case supports situations in which the device needs to be running the latest patch release before it can apply the next major release.
-For instance, a device running 1.4 must upgrade to at least version 1.9 before it is able to download version 2.0 of the firmware.
-(XXX:consider removing this, non-essential)
-
 The authoritative upgrade server then responds with a URL of a firmware blob that the device should download and install.
 Best practice is that firmware is either signed internally ({{-SUITARCH}}) so that it can be verified, or a hash of the blob is provided.
-XXX -- explain problem with IP address literals.
 
-The challenge for a MUD controller is in the details of the URL that is provided is not visible to the MUD controller.
-An authoritative server might be tempted to provided an IP address literal inside the protocol: there are two arguments for doing this.
+An authoritative server might be tempted to provided an IP address literal inside the protocol: there are two arguments (anti-patterns) for doing this.
 
 One is that it eliminates problems to firmware updates that might be caused by lack of DNS, or incompatibilities with DNS.
 For instance the bug that causes interoperability issues with some recursive servers would become unpatchable for devices that were forced to use that recursive resolver type.
 
 A second reason to avoid a DNS in the URL is when an inhouse content-distribution system is involved that involves on-demand instances being added (or removed) from a cloud computing architecture.
-This model is typical of on-demand video systems including Netflix (see \[LOOKING FOR NETFLIX REF],
-\[WINDOWS UPDATE REF]), but this can occur in quite a number of other situations.
-Third-party content-distribution networks (CDN) tend to use DNS names in order to isolate the content-owner from changes to the distribution network.
 
-\[BEHAVE-BCP-REF] gives other good reasons why IP address literals are bad
-ideas; in particular they work very poorly when devices have IPv6
-capabilities, and are on IPv6-only networks with NAT64 (see {{RFC6146}}).
+But, there are many problems with use of IP address literals for the location of the firmware.
+
+The first is that the update service server must decide whether to provide an IPv4 or an IPv6 literal.
+A DNS name can contain both kinds of addresses, and can also contain many different IP addresses of each kind.
+
+The second problem is that it forces the MUD file definition to contain the exact same IP address literals.
+It must also contain an ACL for each address literal.
+DNS provides a useful indirection method that naturally aggregates the addresses.
+
+A third problem involves the use of HTTPS.
+IP address literals do not provide enough context for TLS ServerNameIndicator to be useful {{?RFC6066}}.
+This limits the firmware repository to be a single tenant on that IP address, and for IPv4 (at least), this is no longer a sustainable use of IP addresses.
+
+And with any non-determistic name or address that is returned,
+the MUD controller is not challenged to validate the transaction, as
+it can not see into the communication.
+
+Third-party content-distribution networks (CDN) tend to use DNS names in order to isolate the content-owner from changes to the distribution network.
 
 ## Use of non-deterministic DNS names in-protocol
 
