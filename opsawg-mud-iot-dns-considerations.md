@@ -55,7 +55,7 @@ informative:
     target: "https://mudmaker.org"
     date: 2019
   I-D.richardson-mud-qrcode:
-  antipattern:
+  antipatterns:
     target: "https://www.agilealliance.org/glossary/antipattern"
     title: "AntiPattern"
     date: 2021-07-12
