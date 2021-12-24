@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for use of DNS in IoT devices
 abbrev: mud-iot-dns
-docname: draft-ietf-opsawg-mud-iot-dns-considerations-02
+docname: draft-ietf-opsawg-mud-iot-dns-considerations-03
 
 ipr: trust200902
 area: Operations
@@ -65,18 +65,17 @@ informative:
     target: "https://techmonitor.ai/techonology/cloud/aws-s3-path-deprecation"
     date: 2021-07-12
 
+venue:
+  mail: opsawg@ietf.org
+  github: mcr/iot-mud-dns-considerations
+
 --- abstract
 
 This document details concerns about how Internet of Things devices use IP
 addresses and DNS names.
 The issue becomes acute as network operators begin deploying RFC8520 Manufacturer Usage Description (MUD) definitions to control device access.
 
-This document explains the problem through a series of examples of what can
-go wrong, and then provides some advice on how a device manufacturer can best
-make deal with these issues.
-The recommendations have an impact upon device and network protocol design.
-
-{RFC-EDITOR, please remove. Markdown and issue tracker for this document is at https://github.com/mcr/iot-mud-dns-considerations.git }
+This document makes recommendations on when and how to use DNS names in MUD files.
 
 --- middle
 
