@@ -114,10 +114,7 @@ The Security Considerations section covers some of the negative outcomes should 
 
 # Terminology          {#Terminology}
 
-{::boilerplate bcp14}
-
-This document is a Best Current Practices (BCP) document.
-It uses the above language where it needs to make a normative requirement on implementations.
+{::boilerplate bcp14info}
 
 # Strategies to map names {#mapping}
 
@@ -132,7 +129,9 @@ This fails for a number of reasons:
 
 4. even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 
-This is not a successful strategy, and do not use it.
+This is not a successful strategy, its use is NOT RECOMMENDED.
+
+
 
 XXX --- explain in detail how this can fail.
 
@@ -194,8 +193,8 @@ This section describes a number of things with IoT manufacturers have been obser
 ## Use of IP address literals in-protocol {#inprotocol}
 
 A common pattern for a number of devices is to look for firmware updates in a two step process.
-An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to an authoritatve server.
-(What is this)
+An initial query is made (often over HTTPS, sometimes with a POST, but the method is immaterial) to a vendor system that knows whether or not an update is required.
+
 The current firmware model of the device is sometimes provided and then the authoritative server provides a determination if a new version is required, and if so, what version.
 In simpler cases, an HTTPS end point is queried which provides the name and URL of the most recent firmware.
 
@@ -285,7 +284,7 @@ This document has discussed a number of challenges that occur relating to how DN
 
 ## Consistently use DNS
 
-The first recommendation is to avoid using IP address literals in any protocol.
+For the reasons explained in {{inprotocol}}, the most important recommendation is to avoid using IP address literals in any protocol.
 Names should always be used.
 
 ## Use primary DNS names controlled by the manufacturer
