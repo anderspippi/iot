@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for use of DNS in IoT devices
 abbrev: mud-iot-dns
-docname: draft-ietf-opsawg-mud-iot-dns-considerations-03
+docname: draft-ietf-opsawg-mud-iot-dns-considerations-04
 
 ipr: trust200902
 area: Operations
@@ -84,7 +84,7 @@ This document makes recommendations on when and how to use DNS names in MUD file
 {{RFC8520}} provides a standardized way to describe how a specific purpose device makes use of Internet resources.
 Access Control Lists (ACLs) can be defined in an RFC8520 Manufacturer Usage Description (MUD) file that permit a device to access Internet resources by DNS name.
 
-Use of a DNS name rather than IP address in the ACL has many advantages: not only does the layer of indirection permit the mapping of name to IP address to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting loading balancing of traffic by many different common ways, including geography.
+Use of a DNS name rather than IP address in the ACL has many advantages: not only does the layer of indirection permit the mapping of name to IP address to be changed over time, it also generalizes automatically to IPv4 and IPv6 addresses, as well as permitting loading balancing of traffic by many different common ways, including multi-CDN deployments wherein load balancing can account for geography and load.
 
 At the MUD policy enforcement point -- the firewall -- there is a problem.
 The firewall has only access to the layer-3 headers of the packet.
@@ -161,9 +161,11 @@ There may also be further layers of round-robin indirection.
 
 Aside from the list of records being incomplete, the list may have changed between the time that the MUD controller did the lookup and the time that the IoT device does the lookup, and this change can result in a failure for the ACL to match.
 
-In order to compensate for this, the MUD controller SHOULD regularly do DNS lookups.
+In order to compensate for this, the MUD controller SHOULD regularly do DNS lookups in order to get never have stale data.
 These lookups need to be rate limited in order to avoid load.
-It may be necessary to avoid recursive DNS servers in order to avoid receiving cached data.  Properly designed recursive servers should cache data for many minutes to days, while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
+It may be necessary to avoid local recursive DNS servers.
+The MUD controller SHOULD incorporate its own recursive caching DNS server.
+Properly designed recursive servers should cache data for many minutes to days, while the underlying DNS data can change at a higher frequency, providing different answers to different queries!
 
 A MUD controller that is aware of which recursive DNS server that the IoT device will use can instead query that server on a periodic basis.
 Doing so provides three advantages:
@@ -229,23 +231,29 @@ Third-party content-distribution networks (CDN) tend to use DNS names in order t
 
 ## Use of non-deterministic DNS names in-protocol
 
-A second pattern is for a control protocol to connect to a known HTTP end
-point.
+A second pattern is for a control protocol to connect to a known HTTP end point.
 This is easily described in MUD.
 Within that control protocol references are made to additional content at other URLs.
 The values of those URLs do not fit any easily described pattern and may point at arbitrary names.
 
 Those names are often within some third-party Content-Distribution-Network (CDN) system, or may be arbitrary names in a cloud-provider storage system such as Amazon S3 (such {{AmazonS3}}, or {{Akamai}}).
 
-Since it is not possible to predict a name for where the content will be, it is not possible to include that into the MUD file.
+Such names may be unpredictably chosen by the content provider, and not the content owner, and so impossible to insert into a MUD file.
 
-This applies to the firmware update situation as well.
+Even if the content provider chosen names are deterministic they may change at a rate much faster
+than MUD files can be updated.
+
+This in particular may apply to the location where firmware updates may be retrieved.
 
 ## Use of a too inclusive DNS name
 
 Some CDNs make all customer content at a single URL (such as s3.amazonaws.com).
 This seems to be ideal from a MUD point of view: a completely predictable URL.
-The problem is that a compromised device could then connect to any S3 bucket, potentially attacking other buckets.
+
+The problem is that a compromised device could then connect to the contents of any bucket,
+potentially attacking the data from other customers.
+
+Exactly what the risk is depends upon what the other customers are doing: it could be limited to simply causing a distributed denial of service attack resulting to high costs to those customers, or such an attack could potentially include writing content.
 
 Amazon has recognized the problems associated with this practice, and aims to change it to a virtual hosting model, as per {{awss3virtualhosting}}.
 
@@ -257,16 +265,10 @@ The MUD ACLs provide only for permitting end points (hostnames and ports), but d
 {{I-D.ietf-dnsop-terminology-ter}} details the terms.
 But, even with traditional DNS over Port-53 (Do53), it is possible to outsource DNS  queries to other public services, such as those operated by Google, CloudFlare, Verisign, etc.
 
-There are significant privacy issues with having IoT devices sending their DNS queries to an outside entity.
-Doing it over a secure transport (DoT/DoH) is clearly better than doing so on
-port 53.
-The providers of the secure resolver service will, however, still see the IoT device queries.
+For some users and classes of device, revealing the DNS queries to those outside entities may consititute a privacy concern.
+For other users the use of an insecure local resolver may constitute a privacy concern.
 
 A described above in {{mapping}} the MUD controller needs to have access to the same resolver(s) as the IoT device.
-Use of the QuadX resolvers (such as Google's 8.8.8.8) at first seems to present less of a problem than use of some other less well known resolver.
-While any system may use QuadX, in most cases those services are massively replicated via anycast: there is no guarantee that a MUD controller will speak to the same instance, or get the same geographic anycast result.
-
-XXX - THIS NEEDS WAY MORE EXPLANATION.
 
 # Recommendations to IoT device manufacturer on MUD and DNS usage
 
@@ -308,8 +310,6 @@ Due the problems with different answers from different DNS servers, described ab
 
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
 
-XXX - it has been suggested that this will not help, thus previous recommendation.
-
 IoT Devices should prefer doing DNS to the network provided DNS servers.
 Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{I-D.reddy-dprive-bootstrap-dns-server}} and {{I-D.peterson-doh-dhcp}}.
 
@@ -321,7 +321,8 @@ Should the network provide such a resolver for use, then there is no reason not 
 
 Some manufacturers would like to have a fallback to using a public resolver to mitigate against local misconfiguration.
 There are a number of reasons to avoid this, or at least do this very carefully.
-The recommendation here is to do this only when the provided resolvers provide no answers to any queries at all, and do so repeatedly.
+
+It is recommended that use of non-local resolvers is only done when the locally provided resolvers provide no answers to any queries at all, and do so repeatedly.
 The use of the operator provided resolvers SHOULD be retried on a periodic basis, and once they answer, there should be no further attempts to contact public resolvers.
 
 Finally, the list of public resolvers that might be contacted MUST be listed in the MUD file as destinations that are to be permitted!
