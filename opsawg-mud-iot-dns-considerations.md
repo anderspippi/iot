@@ -327,6 +327,17 @@ The use of the operator provided resolvers SHOULD be retried on a periodic basis
 Finally, the list of public resolvers that might be contacted MUST be listed in the MUD file as destinations that are to be permitted!
 This should include the port numbers (53, 853 for DoT, 443 for DoH) that will be used as well.
 
+## Use SOCKSv5 for all outgoing communications
+
+SOCKSv5 {{?RFC1928}} was standardized in the 1990s in the years before NAT44 became common.
+A key attribute of it is that it passes the DNS name from the device making the active TCP connection to the gateway system for resolution.
+This aspect of it means that the gateway system gets to use the DNS name to which the device wishes to connect, and this moves all interactions with DNS system from the end system to the gateway system on which the MUD ACLs are deployed.
+
+In order to use SOCKS, IoT devices will need a signal that it has been enabled on the target network.
+
+XXX - If there were a DHCPv4 option that provided the location of the server, then that would work.
+
+
 # Privacy Considerations
 
 The use of non-local DNS servers exposes the list of names resolved to a third parties, including passive eavesdroppers.
