@@ -42,7 +42,7 @@ normative:
     date: 2019
   RFC8499:
   I-D.ietf-dnsop-terminology-ter:
-  I-D.ietf-suit-architecture: SUITARCH
+  RFC9019: SUITARCH
   RFC7858:
   RFC8094:
 
