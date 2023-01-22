@@ -43,7 +43,7 @@ normative:
   RFC8499:
   I-D.ietf-dnsop-terminology-ter:
   I-D.ietf-suit-architecture: SUITARCH
-  I-D.reddy-dprive-bootstrap-dns-server:
+  I-D.reddy-add-iot-byod-bootstrap:
   I-D.peterson-doh-dhcp:
   RFC7858:
   RFC8094:
@@ -349,10 +349,10 @@ Due the problems with different answers from different DNS servers, described ab
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
 
 IoT Devices should prefer doing DNS to the network provided DNS servers.
-Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{I-D.reddy-dprive-bootstrap-dns-server}} and {{I-D.peterson-doh-dhcp}}.
+Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{I-D.reddy-add-iot-byod-bootstrap}} and {{I-D.peterson-doh-dhcp}}.
 
 The ADD WG is currently only focusing on insecure discovery mechanisms
-like DHCP/RA {{?I-D.btw-add-home}} and DNS based discovery mechanisms ({?{I-D.pauly-add-deer}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{?I-D.reddy-add-enterprise}} section-4.
+like DHCP/RA {{?I-D.ietf-add-dnr}} and DNS based discovery mechanisms ({?{I-D.ietf-add-ddr}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{?I-D.ietf-add-split-horizon-authority}} section-4.
 
 Use of public QuadX resolver instead of the provided DNS resolver, whether Do53, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
@@ -374,7 +374,7 @@ The use of DoT and DoH eliminates the minimizes threat from passive eavesdropped
 There are additional methods, such as described by {{?I-D.pauly-dprive-oblivious-doh}}.
 
 The use of unencrypted (Do53) requests to a local DNS server exposes the list to any internal passive eavesdroppers, and for some situations that may be significant, particularly if unencrypted WiFi is used.
-Use of Encrypted DNS connection to a local DNS recursive resolver is a preferred choice, assuming that the trust anchor for the local DNS server can be obtained, such as via {{I-D.reddy-dprive-bootstrap-dns-server}}.
+Use of Encrypted DNS connection to a local DNS recursive resolver is a preferred choice, assuming that the trust anchor for the local DNS server can be obtained, such as via {{I-D.reddy-add-iot-byod-bootstrap}}.
 
 IoT devices that reach out to the manufacturer at regular intervals to check for firmware updates are informing passive eavesdroppers of the existence of a specific manufacturer's device being present at the origin location.
 
