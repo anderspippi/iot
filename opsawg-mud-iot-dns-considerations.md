@@ -1,7 +1,7 @@
 ---
 title: Operational Considerations for use of DNS in IoT devices
 abbrev: mud-iot-dns
-docname: draft-ietf-opsawg-mud-iot-dns-considerations-05
+docname: draft-ietf-opsawg-mud-iot-dns-considerations-06
 
 ipr: trust200902
 area: Operations
