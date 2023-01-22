@@ -119,7 +119,10 @@ The Security Considerations section covers some of the negative outcomes should 
 # Strategies to map names {#mapping}
 
 The most naive method is to try to map IP addresses to names using the in-addr.arpa (IPv4), and ipv6.arpa (IPv6) mappings.
-This fails for a number of reasons:
+
+## Failing strategy
+
+Attempts to map IP address to names in real time fails for a number of reasons:
 
 1. it can not be done fast enough,
 
@@ -129,13 +132,48 @@ This fails for a number of reasons:
 
 4. even if the mapping is present, due to virtual hosting, it may not map back to the name used in the ACL.
 
-This is not a successful strategy, its use is NOT RECOMMENDED.
+This is not a successful strategy, its use is NOT RECOMMENDED for the reasons explained below.
 
+### Too slow
 
+Mapping of IP address to names requires a DNS lookup in the in-addr.arpa or ip6.arpa space.
+For a cold DNS cache, this will typically require 2 to 3 NS record lookups to locate the DNS server that holds the information required.  At 20 to 100ms per round trip, this easily ads up to significant time before the packet that caused the lookup can be released.
 
-XXX --- explain in detail how this can fail.
+While subsequent connections to the same site (and subsequent packets in the same flow) will not be affected if the results are cached, the effects will be felt.  The ACL results can be cached  for a period of time given by the TTL of the DNS results, but the lookup must be performed again in a number of hours to days.
 
-XXX --- explain N:1 vs 1:1 for virtual hosting.
+### Reveals patterns of usage
+
+By doing the DNS lookups when the traffic occurs, then a passive attacker can see when the device is active, and may be able to derive usage patterns.  They could determine when a home was occupied or not.  This does not require access to all on-path data, just to the DNS requests to the bottom level of the DNS tree.
+
+### Mappings are often incomplete
+
+A service provider that fails to include an A or AAAA record as part of their forward name publication will find that the new server is simply not used.
+The operational feedback for that mistake is immediate.
+The same is not true for reverse names: they can often be incomplete or incorrect for months or even years without visible affect on operations.
+
+Service providers often find it difficult to update reverse maps in a timely fashion, assuming that they can do it at all.
+Many cloud based solutions dynamically assign IP addresses to services, often as the service grows and shrinks, reassigning those IP addresses to other services quickly.
+The use of HTTP 1.1 Virtual Hosting may allow addresses and entire front-end systems to be re-used dynamically without even reassigning the IP addresses.
+
+In some cases there are multiple layers of CNAME between the original name and the target service name.
+This is often due to a layer of load balancing in DNS, followed by a layer of load balancer at the HTTP level.
+
+The reverse name for the IP address of the load balancer usually does not change.
+If hundreds of web services are funnelled through the load balancer, it would require hundreds of PTR records to be deployed.
+This would easily exceed the UDP/DNS and EDNS0 limits, and require all queries to use TCP, which would further slow down loading of the records.
+
+The enumeration of all services/sites that have been at that load balancer might also consistitute a security concern.
+To liimt churn of DNS PTR records, and reduce failures of the MUD ACLs, operators would want to  add all possible names for each reverse name, whether or not the DNS load balancing in the forward DNS space lists that end-point at that moment.
+
+### Names can have wildcards
+
+In some large hosting providers content is hosted under some URL that includes a wildcard.
+For instance, github.io, which is used for hosted content, including the Editors' copy of internet drafts stored on github, does not actually publish any names.
+Instead a wildcard exists to answer.
+
+github would be unable to provision all infinity of possible names into the PTR records.
+
+## A successful strategy
 
 The simplest successful strategy for translating names is for a MUD controller to take is to do a DNS lookup on the name (a forward lookup), and then use the resulting IP addresses to populate the physical ACLs.
 
