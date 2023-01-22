@@ -103,7 +103,7 @@ The first section of this document details a few strategies that are used.
 
 The second section of this document details how common manufacturer anti-patterns get in the way this mapping.
 
-The third section of this document details how current trends in DNS presolution such as public DNS servers, DNS over TLS (DoT), and DNS over HTTPS (DoH) cause problems for the strategies employed.   Poor interactions with content-distribution networks is a frequent pathology that can result.
+The third section of this document details how current trends in DNS presolution such as public DNS servers, DNS over TLS (DoT), DNS over QUIC (DoQ), and DNS over HTTPS (DoH) cause problems for the strategies employed.   Poor interactions with content-distribution networks is a frequent pathology that can result.
 
 The fourth section of this document makes a series of recommendations ("best current practices") for manufacturers on how to use DNS, and IP addresses with specific purpose IoT devices.
 
