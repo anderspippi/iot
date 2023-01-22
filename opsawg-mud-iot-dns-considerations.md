@@ -43,12 +43,12 @@ normative:
   RFC8499:
   I-D.ietf-dnsop-terminology-ter:
   I-D.ietf-suit-architecture: SUITARCH
-  I-D.reddy-add-iot-byod-bootstrap:
-  I-D.peterson-doh-dhcp:
   RFC7858:
   RFC8094:
 
 informative:
+  I-D.peterson-doh-dhcp:
+  I-D.reddy-add-iot-byod-bootstrap:
   mudmaker:
     title: "Mud Maker"
     target: "https://mudmaker.org"
