@@ -54,7 +54,7 @@ informative:
     title: "Mud Maker"
     target: "https://mudmaker.org"
     date: 2019
-  I-D.richardson-mud-qrcode:
+  RFC9238:
   antipatterns:
     target: "https://www.agilealliance.org/glossary/antipattern"
     title: "AntiPattern"
@@ -313,7 +313,7 @@ A described above in {{mapping}} the MUD controller needs to have access to the 
 Inclusion of a MUD file with IoT devices is operationally quite simple.
 It requires only a few small changes to the DHCP client code to express the
 MUD URL.
-It can even be done without code changes via the use of a QR code affixed to the packaging (see {{I-D.richardson-mud-qrcode}}.
+It can even be done without code changes via the use of a QR code affixed to the packaging (see {{?RFC9238}}.
 
 The difficult part is determining what to put into the MUD file itself.
 There are currently tools that help with the definition and analysis of MUD files, see {{mudmaker}}.
