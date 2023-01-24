@@ -64,6 +64,11 @@ informative:
     target: "https://techmonitor.ai/techonology/cloud/aws-s3-path-deprecation"
     date: 2021-07-12
 
+contributor:
+  name: Tirumaleswar Reddy
+  org: Nokia
+
+
 venue:
   mail: opsawg@ietf.org
   github: mcr/iot-mud-dns-considerations
@@ -349,10 +354,10 @@ Due the problems with different answers from different DNS servers, described ab
 ## Prefer DNS servers learnt from DHCP/Route Advertisements
 
 IoT Devices should prefer doing DNS to the network provided DNS servers.
-Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{?I-D.reddy-add-iot-byod-bootstrap}} and {{I-D.peterson-doh-dhcp}}.
+Whether this is restricted to Classic DNS (Do53) or also includes using DoT/DoH is a local decision, but a locally provided DoT server SHOULD be used, as recommended by {{?I-D.reddy-add-iot-byod-bootstrap}}.
 
 The ADD WG is currently only focusing on insecure discovery mechanisms
-like DHCP/RA {{?I-D.ietf-add-dnr}} and DNS based discovery mechanisms ({{?I-D.ietf-add-ddr}}). Secure discovery of network provided DoH/DoT resolver is possible using the mechanisms discussed in {{?I-D.ietf-add-split-horizon-authority}} section-4.
+like DHCP/RA {{?I-D.ietf-add-dnr}} and DNS based discovery mechanisms ({{?I-D.ietf-add-ddr}}).
 
 Use of public QuadX resolver instead of the provided DNS resolver, whether Do53, DoT or DoH is discouraged.
 Should the network provide such a resolver for use, then there is no reason not to use it, as the network operator has clearly thought about this.
