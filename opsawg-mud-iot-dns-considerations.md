@@ -90,12 +90,13 @@ The firewall has only access to the layer-3 headers of the packet.
 This includes the source and destination IP address, and if not encrypted by IPsec, the destination UDP or TCP port number present in the transport header.
 The DNS name is not present!
 
+
 It has been suggested that one answer to this problem is to provide a forced intermediate for the TLS connections.
 This could in theory be done for TLS 1.2 connections.
 The MUD policy enforcement point could observe the Server Name  Identifier (SNI) {{?RFC6066}}.
 Some Enterprises do this already.
 But, as this involves active termination of the TCP connection (a forced circuit proxy) in order to see enough of the traffic, it requires significant effort.
-But, TLS 1.3 provides options to encrypt the SNI as the ESNI, which renders the practice useless in the end.
+In TLS 1.3 with or without the use of ECH, middlebox cannot rely on SNI inspection because a malware could lie about the SNI and middlebox without acting as a TLS proxy does not have visibility into the server certificate.
 
 So in order to implement these name based ACLs, there must be a mapping between the names in the ACLs and layer-3 IP addresses.
 The first section of this document details a few strategies that are used.
